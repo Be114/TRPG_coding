@@ -17,6 +17,7 @@ import { useEffect } from 'react'
 interface EditorCoreProps {
   content?: any
   onUpdate?: (content: any) => void
+  onEditorReady?: (editor: any) => void
   placeholder?: string
   editable?: boolean
   className?: string
@@ -25,6 +26,7 @@ interface EditorCoreProps {
 export function EditorCore({
   content,
   onUpdate,
+  onEditorReady,
   placeholder = "ここに書き始めてください...",
   editable = true,
   className = "",
@@ -91,6 +93,13 @@ export function EditorCore({
       editor.commands.setContent(content)
     }
   }, [content, editor])
+
+  // Notify parent when editor is ready
+  useEffect(() => {
+    if (editor && onEditorReady) {
+      onEditorReady(editor)
+    }
+  }, [editor, onEditorReady])
 
   return (
     <div className="relative">

@@ -5,6 +5,8 @@ import { useProjectStore } from '@/stores/projectStore'
 import { EditorCore } from './EditorCore'
 import { EditorToolbar } from './EditorToolbar'
 import { ChapterTree } from './ChapterTree'
+import { ExportDialog } from './ExportDialog'
+import { VersionHistory } from './VersionHistory'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
@@ -14,13 +16,14 @@ import {
   Eye, 
   EyeOff, 
   Save,
+  Download,
+  History,
   MoreHorizontal,
   Maximize,
   Minimize,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useEditor } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
+import { Editor } from '@tiptap/react'
 
 interface EditorState {
   focusMode: boolean
@@ -55,6 +58,8 @@ export function ScenarioEditor() {
     rightSidebarVisible: false,
     leftSidebarWidth: 280,
   })
+
+  const [currentEditor, setCurrentEditor] = useState<Editor | null>(null)
 
   // Load scenario on mount
   useEffect(() => {
@@ -239,6 +244,32 @@ export function ScenarioEditor() {
                 {editorState.zenMode ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
               </Button>
 
+              {/* Version History */}
+              <VersionHistory
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    title="バージョン履歴"
+                  >
+                    <History className="h-4 w-4" />
+                  </Button>
+                }
+              />
+
+              {/* Export */}
+              <ExportDialog
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    title="エクスポート"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                }
+              />
+
               {/* Manual save */}
               <Button
                 variant="ghost"
@@ -256,7 +287,7 @@ export function ScenarioEditor() {
         {/* Editor Area */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Toolbar */}
-          {!isMinimalMode && <EditorToolbar editor={null} />}
+          {!isMinimalMode && <EditorToolbar editor={currentEditor} />}
 
           {/* Editor Content */}
           <div className="flex-1 overflow-y-auto">
@@ -268,6 +299,7 @@ export function ScenarioEditor() {
               <EditorCore
                 content={currentContent}
                 onUpdate={handleContentUpdate}
+                onEditorReady={setCurrentEditor}
                 placeholder={
                   isChapterMode 
                     ? `${currentChapter.title} の内容を書いてください...`

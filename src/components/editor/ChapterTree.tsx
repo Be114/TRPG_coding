@@ -18,6 +18,8 @@ import {
   Edit,
   Trash2,
   Copy,
+  Search,
+  X,
 } from 'lucide-react'
 
 interface ChapterTreeProps {
@@ -159,6 +161,8 @@ export function ChapterTree({
 }: ChapterTreeProps) {
   const { createChapter, updateChapter, deleteChapter } = useScenarioStore()
   const [editingChapterId, setEditingChapterId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [isSearchVisible, setIsSearchVisible] = useState(false)
 
   // Build tree structure
   const buildTree = (chapters: ScenarioChapter[]): ScenarioChapter[] => {
@@ -188,7 +192,7 @@ export function ChapterTree({
     return tree
   }
 
-  const treeData = buildTree(chapters)
+  const treeData = buildTree(filteredChapters)
 
   const handleEdit = (chapterId: string) => {
     setEditingChapterId(chapterId)
@@ -223,6 +227,13 @@ export function ChapterTree({
     await createChapter('新しいチャプター')
   }
 
+  // Filter chapters based on search query
+  const filteredChapters = searchQuery.trim()
+    ? chapters.filter(chapter =>
+        chapter.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : chapters
+
   const renderChapterNodes = (chapters: (ScenarioChapter & { children: ScenarioChapter[] })[]): ChapterNodeProps[] => {
     return chapters.map(chapter => ({
       chapter,
@@ -243,15 +254,49 @@ export function ChapterTree({
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between p-3 border-b">
         <h3 className="font-semibold text-sm">チャプター</h3>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleAddRoot}
-          className="h-6 w-6 p-0"
-        >
-          <Plus className="h-3 w-3" />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsSearchVisible(!isSearchVisible)}
+            className="h-6 w-6 p-0"
+          >
+            <Search className="h-3 w-3" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleAddRoot}
+            className="h-6 w-6 p-0"
+          >
+            <Plus className="h-3 w-3" />
+          </Button>
+        </div>
       </div>
+
+      {/* Search bar */}
+      {isSearchVisible && (
+        <div className="p-2 border-b">
+          <div className="relative">
+            <Input
+              placeholder="チャプターを検索..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pr-8"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
       
       <div className="flex-1 overflow-y-auto p-2 space-y-1">
         {treeData.length === 0 ? (
