@@ -6,6 +6,7 @@ import { SignUpPage } from '@/pages/SignUpPage'
 import { DashboardPage } from '@/pages/DashboardPage'
 import { ScenarioEditorPage } from '@/pages/ScenarioEditorPage'
 import { MapEditorPage } from '@/pages/MapEditorPage'
+import { IntegratedWorkspacePage } from '@/pages/IntegratedWorkspacePage'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { ThemeProvider } from '@/components/ThemeProvider'
 
@@ -43,6 +44,11 @@ function App() {
           <Route path="/project/:projectId/map/:mapId" element={
             <ProtectedRoute>
               <MapEditorPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/project/:projectId/workspace" element={
+            <ProtectedRoute>
+              <IntegratedWorkspacePage />
             </ProtectedRoute>
           } />
           <Route path="*" element={<Navigate to="/" replace />} />
