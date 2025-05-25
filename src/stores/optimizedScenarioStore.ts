@@ -597,14 +597,25 @@ export const useOptimizedScenarioStore = create<OptimizedScenarioState>()(
         }
 
         const debouncedSave = debounce(async () => {
+          const { autoSaveStates } = get()
+          const currentAutoSave = autoSaveStates.get(scenarioId) || defaultAutoSaveState
+          
+          // Prevent multiple save operations for the same scenario
+          if (currentAutoSave.isSaving) {
+            console.log(`Auto-save already in progress for scenario ${scenarioId}`)
+            return
+          }
+
           try {
             await get().saveScenario(scenarioId)
           } catch (error) {
             console.error(`Auto-save failed for scenario ${scenarioId}:`, error)
-            const { autoSaveStates } = get()
-            const currentAutoSave = autoSaveStates.get(scenarioId) || defaultAutoSaveState
-            const newAutoSaveStates = new Map(autoSaveStates).set(scenarioId, {
-              ...currentAutoSave,
+            
+            // Update error state safely
+            const { autoSaveStates: currentStates } = get()
+            const currentState = currentStates.get(scenarioId) || defaultAutoSaveState
+            const newAutoSaveStates = new Map(currentStates).set(scenarioId, {
+              ...currentState,
               isSaving: false,
               error: (error as Error).message,
             })
@@ -618,7 +629,11 @@ export const useOptimizedScenarioStore = create<OptimizedScenarioState>()(
       triggerAutoSave: (scenarioId: string) => {
         const debouncedSave = debouncedSaveOperations.get(scenarioId)
         if (debouncedSave) {
-          debouncedSave()
+          try {
+            debouncedSave()
+          } catch (error) {
+            console.error(`Failed to trigger auto-save for scenario ${scenarioId}:`, error)
+          }
         }
       },
     })
