@@ -70,24 +70,58 @@ export interface MapData {
   height: number
   gridSize: number
   layers: MapLayer[]
+  settings: MapSettings
+}
+
+export interface MapSettings {
+  gridType: 'square' | 'hex'
+  gridVisible: boolean
+  gridColor: string
+  backgroundColor: string
+  snapToGrid: boolean
 }
 
 export interface MapLayer {
   id: string
   name: string
-  type: 'background' | 'objects' | 'grid'
+  type: 'background' | 'objects' | 'tokens' | 'effects' | 'gm'
   visible: boolean
+  locked: boolean
   opacity: number
-  cells: MapCell[][]
+  blendMode: string
+  objects: MapObject[]
 }
 
-export interface MapCell {
-  color: string | null
-  terrain?: string
+export interface MapObject {
+  id: string
+  type: 'shape' | 'image' | 'text' | 'wall' | 'door'
+  x: number
+  y: number
+  width: number
+  height: number
+  rotation: number
+  data: any // Specific data for each object type
 }
 
 export interface DrawingTool {
-  type: 'pen' | 'eraser' | 'fill' | 'select'
+  type: 'pen' | 'brush' | 'eraser' | 'fill' | 'line' | 'rectangle' | 'circle' | 'text' | 'wall' | 'door' | 'select'
   size: number
   color: string
+  opacity: number
+}
+
+export interface MapEditorState {
+  selectedTool: DrawingTool
+  selectedLayer: string | null
+  zoom: number
+  panX: number
+  panY: number
+  isDrawing: boolean
+  selectedObjects: string[]
+}
+
+export interface ColorPalette {
+  id: string
+  name: string
+  colors: string[]
 }
