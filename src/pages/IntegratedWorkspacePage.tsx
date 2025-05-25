@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useWorkspaceStore } from '@/stores/workspaceStore'
 import { useOptimizedScenarioStore } from '@/stores/optimizedScenarioStore'
 import { useMapStore } from '@/stores/mapStore'
-import { usePerformanceMonitor, detectMemoryLeaks } from '@/lib/performance'
+import { usePerformanceMonitor } from '@/lib/performance'
 import { WorkspaceManager } from '@/components/workspace/WorkspaceManager'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -19,57 +19,17 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-// Lazy load components for better performance with error handling
+// Lazy load components for better performance
 const OptimizedScenarioEditor = React.lazy(() => 
-  import('@/components/editor/OptimizedScenarioEditor')
-    .then(module => ({
-      default: module.OptimizedScenarioEditor
-    }))
-    .catch(error => {
-      console.error('Failed to load OptimizedScenarioEditor:', error)
-      // Return a fallback component instead of failing
-      return {
-        default: () => (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <p className="text-destructive mb-4">シナリオエディタの読み込みに失敗しました</p>
-              <button 
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-              >
-                再読み込み
-              </button>
-            </div>
-          </div>
-        )
-      }
-    })
+  import('@/components/editor/OptimizedScenarioEditor').then(module => ({
+    default: module.OptimizedScenarioEditor
+  }))
 )
 
 const OptimizedMapEditor = React.lazy(() => 
-  import('@/components/editor/OptimizedMapEditor')
-    .then(module => ({
-      default: module.OptimizedMapEditor
-    }))
-    .catch(error => {
-      console.error('Failed to load OptimizedMapEditor:', error)
-      // Return a fallback component instead of failing
-      return {
-        default: () => (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <p className="text-destructive mb-4">マップエディタの読み込みに失敗しました</p>
-              <button 
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-              >
-                再読み込み
-              </button>
-            </div>
-          </div>
-        )
-      }
-    })
+  import('@/components/editor/OptimizedMapEditor').then(module => ({
+    default: module.OptimizedMapEditor
+  }))
 )
 
 // Loading component for Suspense
@@ -256,10 +216,10 @@ export const IntegratedWorkspacePage: React.FC = memo(() => {
   
   // Memory leak detection
   useEffect(() => {
-    const detector = detectMemoryLeaks()
+    const detector = monitor.detectMemoryLeaks?.()
     
     const interval = setInterval(() => {
-      const result = detector.check()
+      const result = detector?.check()
       if (result?.hasLeak) {
         console.warn('Memory leak detected in workspace:', result)
       }
@@ -268,7 +228,7 @@ export const IntegratedWorkspacePage: React.FC = memo(() => {
     return () => {
       clearInterval(interval)
     }
-  }, [])
+  }, [monitor])
   
   if (!projectId) {
     return (

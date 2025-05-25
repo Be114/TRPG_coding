@@ -50,10 +50,6 @@ interface OptimizedScenarioState {
   // Memory management
   clearUnusedData: () => void
   preloadScenario: (scenarioId: string) => Promise<void>
-  
-  // Auto-save utilities
-  setupAutoSave: (scenarioId: string) => void
-  triggerAutoSave: (scenarioId: string) => void
 }
 
 const defaultAutoSaveState: AutoSaveState = {
@@ -587,53 +583,6 @@ export const useOptimizedScenarioStore = create<OptimizedScenarioState>()(
           await get().loadScenario(scenarioId)
         } catch (error) {
           console.warn(`Failed to preload scenario ${scenarioId}:`, error)
-        }
-      },
-
-      // Auto-save utility methods
-      setupAutoSave: (scenarioId: string) => {
-        if (debouncedSaveOperations.has(scenarioId)) {
-          return // Already set up
-        }
-
-        const debouncedSave = debounce(async () => {
-          const { autoSaveStates } = get()
-          const currentAutoSave = autoSaveStates.get(scenarioId) || defaultAutoSaveState
-          
-          // Prevent multiple save operations for the same scenario
-          if (currentAutoSave.isSaving) {
-            console.log(`Auto-save already in progress for scenario ${scenarioId}`)
-            return
-          }
-
-          try {
-            await get().saveScenario(scenarioId)
-          } catch (error) {
-            console.error(`Auto-save failed for scenario ${scenarioId}:`, error)
-            
-            // Update error state safely
-            const { autoSaveStates: currentStates } = get()
-            const currentState = currentStates.get(scenarioId) || defaultAutoSaveState
-            const newAutoSaveStates = new Map(currentStates).set(scenarioId, {
-              ...currentState,
-              isSaving: false,
-              error: (error as Error).message,
-            })
-            set({ autoSaveStates: newAutoSaveStates })
-          }
-        }, 3000) // Auto-save after 3 seconds of inactivity
-
-        debouncedSaveOperations.set(scenarioId, debouncedSave)
-      },
-
-      triggerAutoSave: (scenarioId: string) => {
-        const debouncedSave = debouncedSaveOperations.get(scenarioId)
-        if (debouncedSave) {
-          try {
-            debouncedSave()
-          } catch (error) {
-            console.error(`Failed to trigger auto-save for scenario ${scenarioId}:`, error)
-          }
         }
       },
     })
