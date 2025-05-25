@@ -11,8 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { 
-  Sidebar, 
-  SidebarLeft, 
+  PanelLeft, 
   Eye, 
   EyeOff, 
   Save,
@@ -190,7 +189,7 @@ export function ScenarioEditor() {
                 size="sm"
                 onClick={toggleLeftSidebar}
               >
-                <SidebarLeft className="h-4 w-4" />
+                <PanelLeft className="h-4 w-4" />
               </Button>
               
               <Separator orientation="vertical" className="h-4" />
