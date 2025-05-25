@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { MoreHorizontal, Edit, Trash2, Map, FileText } from 'lucide-react'
 import { Project } from '@/types'
 import { useProjectStore } from '@/stores/projectStore'
@@ -18,6 +19,7 @@ interface ProjectCardProps {
 export function ProjectCard({ project }: ProjectCardProps) {
   const { deleteProject } = useProjectStore()
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   const handleDelete = async () => {
     if (!confirm('このプロジェクトを削除してもよろしいですか？')) return
@@ -44,6 +46,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
     }
   }
 
+  const handleOpenWorkspace = () => {
+    navigate(`/project/${project.id}/workspace`)
+  }
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader>
@@ -61,9 +67,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleOpenWorkspace}>
                 <Edit className="mr-2 h-4 w-4" />
-                編集
+                開く/編集
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={handleDelete}
@@ -84,13 +90,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
           </div>
           
           <div className="flex space-x-2">
-            <Button variant="outline" size="sm" className="flex-1">
+            <Button variant="outline" size="sm" className="flex-1" onClick={handleOpenWorkspace}>
               <FileText className="mr-2 h-4 w-4" />
-              シナリオ
-            </Button>
-            <Button variant="outline" size="sm" className="flex-1">
-              <Map className="mr-2 h-4 w-4" />
-              マップ
+              ワークスペースを開く
             </Button>
           </div>
         </div>
