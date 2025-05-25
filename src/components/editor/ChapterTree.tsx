@@ -24,8 +24,9 @@ import {
 
 interface ChapterTreeProps {
   chapters: ScenarioChapter[]
-  currentChapter: ScenarioChapter | null
-  onChapterSelect: (chapter: ScenarioChapter) => void
+  selectedChapter: ScenarioChapter | null
+  onChapterSelect: (chapterId: string | null) => void
+  scenarioId: string
 }
 
 interface ChapterNodeProps {
@@ -156,13 +157,21 @@ function ChapterNode({
 
 export function ChapterTree({
   chapters,
-  currentChapter,
+  selectedChapter,
   onChapterSelect,
+  scenarioId,
 }: ChapterTreeProps) {
   const { createChapter, updateChapter, deleteChapter } = useScenarioStore()
   const [editingChapterId, setEditingChapterId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearchVisible, setIsSearchVisible] = useState(false)
+
+  // Filter chapters based on search query
+  const filteredChapters = searchQuery.trim()
+    ? chapters.filter(chapter =>
+        chapter.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : chapters
 
   // Build tree structure
   const buildTree = (chapters: ScenarioChapter[]): ScenarioChapter[] => {
@@ -227,19 +236,12 @@ export function ChapterTree({
     await createChapter('新しいチャプター')
   }
 
-  // Filter chapters based on search query
-  const filteredChapters = searchQuery.trim()
-    ? chapters.filter(chapter =>
-        chapter.title.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : chapters
-
   const renderChapterNodes = (chapters: (ScenarioChapter & { children: ScenarioChapter[] })[]): ChapterNodeProps[] => {
     return chapters.map(chapter => ({
       chapter,
-      isSelected: currentChapter?.id === chapter.id,
+      isSelected: selectedChapter?.id === chapter.id,
       isEditing: editingChapterId === chapter.id,
-      onSelect: () => onChapterSelect(chapter),
+      onSelect: () => onChapterSelect(chapter.id),
       onEdit: () => handleEdit(chapter.id),
       onSaveEdit: (newTitle) => handleSaveEdit(chapter.id, newTitle),
       onCancelEdit: handleCancelEdit,

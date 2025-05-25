@@ -13,7 +13,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 
 interface VersionHistoryProps {
-  trigger: React.ReactNode
+  scenarioId: string
 }
 
 interface Version {
@@ -24,7 +24,7 @@ interface Version {
   wordCount: number
 }
 
-export function VersionHistory({ trigger }: VersionHistoryProps) {
+export function VersionHistory({ scenarioId }: VersionHistoryProps) {
   const { currentScenario, updateScenarioContent } = useScenarioStore()
   const [versions, setVersions] = useState<Version[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -78,17 +78,16 @@ export function VersionHistory({ trigger }: VersionHistoryProps) {
   }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        {trigger}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>バージョン履歴</DialogTitle>
-        </DialogHeader>
+    <div className="h-full flex flex-col">
+      <div className="p-4 border-b">
+        <h3 className="font-semibold flex items-center gap-2">
+          <History className="w-4 h-4" />
+          バージョン履歴
+        </h3>
+      </div>
         
-        <div className="flex-1 overflow-y-auto space-y-3">
-          {versions.map((version, index) => (
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {versions.map((version, index) => (
             <div
               key={version.id}
               className="border rounded-lg p-4 space-y-2"
@@ -127,11 +126,10 @@ export function VersionHistory({ trigger }: VersionHistoryProps) {
               <div className="text-sm text-muted-foreground bg-muted/30 rounded p-2 max-h-20 overflow-hidden">
                 {getTextPreview(version.content)}
               </div>
-            </div>
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 

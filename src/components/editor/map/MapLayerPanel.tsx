@@ -19,11 +19,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useMapStore } from '@/stores/mapStore'
-import { MapLayer } from '@/types'
+import { MapLayer, Map } from '@/types'
 
-export function MapLayerPanel() {
+interface MapLayerPanelProps {
+  map: Map
+}
+
+export function MapLayerPanel({ map }: MapLayerPanelProps) {
   const {
-    currentMap,
     editorState,
     setSelectedLayer,
     addLayer,
@@ -35,14 +38,14 @@ export function MapLayerPanel() {
   const [editingLayer, setEditingLayer] = useState<string | null>(null)
   const [layerName, setLayerName] = useState('')
 
-  if (!currentMap) return null
+  if (!map) return null
 
   const handleLayerSelect = (layerId: string) => {
     setSelectedLayer(layerId)
   }
 
   const handleAddLayer = () => {
-    const layerNumber = currentMap.data.layers.length + 1
+    const layerNumber = map.data.layers.length + 1
     const newLayer: Omit<MapLayer, 'id'> = {
       name: `新しいレイヤー ${layerNumber}`,
       type: 'objects',
@@ -81,7 +84,7 @@ export function MapLayerPanel() {
   }
 
   const handleDeleteLayer = (layerId: string) => {
-    if (currentMap.data.layers.length > 1) {
+    if (map.data.layers.length > 1) {
       deleteLayer(layerId)
     }
   }
@@ -121,7 +124,7 @@ export function MapLayerPanel() {
 
       {/* Layer List */}
       <div className="flex-1 overflow-y-auto">
-        {currentMap.data.layers
+        {map.data.layers
           .slice()
           .reverse()
           .map((layer, index) => (
@@ -235,7 +238,7 @@ export function MapLayerPanel() {
                       <Separator />
                       <DropdownMenuItem
                         onClick={() => handleDeleteLayer(layer.id)}
-                        disabled={currentMap.data.layers.length <= 1}
+                        disabled={map.data.layers.length <= 1}
                         className="text-red-600"
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
@@ -268,7 +271,7 @@ export function MapLayerPanel() {
 
       {/* Footer Info */}
       <div className="p-3 border-t border-gray-200 text-xs text-gray-500">
-        {currentMap.data.layers.length} レイヤー
+        {map.data.layers.length} レイヤー
       </div>
     </div>
   )

@@ -31,12 +31,16 @@ const toolItems = [
   { type: 'text', icon: Type, label: 'テキスト', shortcut: 'T' },
 ] as const
 
-export function MapToolbar() {
+interface MapToolbarProps {
+  selectedTool: DrawingTool
+  onToolChange: (tool: DrawingTool) => void
+  zoom: number
+  onZoomChange: (zoom: number) => void
+}
+
+export function MapToolbar({ selectedTool, onToolChange, zoom, onZoomChange }: MapToolbarProps) {
   const {
     currentMap,
-    editorState,
-    setSelectedTool,
-    setZoom,
     autoSave,
   } = useMapStore()
 
@@ -52,8 +56,8 @@ export function MapToolbar() {
       toolItems.forEach(({ type, shortcut }) => {
         if (e.key.toLowerCase() === shortcut.toLowerCase()) {
           e.preventDefault()
-          setSelectedTool({
-            ...editorState.selectedTool,
+          onToolChange({
+            ...selectedTool,
             type,
           })
         }
@@ -63,13 +67,13 @@ export function MapToolbar() {
       if (e.ctrlKey || e.metaKey) {
         if (e.key === '=' || e.key === '+') {
           e.preventDefault()
-          setZoom(editorState.zoom * 1.2)
+          onZoomChange(zoom * 1.2)
         } else if (e.key === '-') {
           e.preventDefault()
-          setZoom(editorState.zoom / 1.2)
+          onZoomChange(zoom / 1.2)
         } else if (e.key === '0') {
           e.preventDefault()
-          setZoom(1)
+          onZoomChange(1)
         }
       }
 
@@ -82,21 +86,21 @@ export function MapToolbar() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [editorState.selectedTool, editorState.zoom, setSelectedTool, setZoom, autoSave])
+  }, [selectedTool, zoom, onToolChange, onZoomChange, autoSave])
 
   const handleToolSelect = (toolType: DrawingTool['type']) => {
-    setSelectedTool({
-      ...editorState.selectedTool,
+    onToolChange({
+      ...selectedTool,
       type: toolType,
     })
   }
 
   const handleZoomIn = () => {
-    setZoom(editorState.zoom * 1.2)
+    onZoomChange(zoom * 1.2)
   }
 
   const handleZoomOut = () => {
-    setZoom(editorState.zoom / 1.2)
+    onZoomChange(zoom / 1.2)
   }
 
   const handleSave = () => {
@@ -115,7 +119,7 @@ export function MapToolbar() {
         {toolItems.map(({ type, icon: Icon, label, shortcut }) => (
           <Button
             key={type}
-            variant={editorState.selectedTool.type === type ? 'default' : 'ghost'}
+            variant={selectedTool.type === type ? 'default' : 'ghost'}
             size="sm"
             onClick={() => handleToolSelect(type)}
             title={`${label} (${shortcut})`}
@@ -135,23 +139,23 @@ export function MapToolbar() {
           type="range"
           min="1"
           max="20"
-          value={editorState.selectedTool.size}
+          value={selectedTool.size}
           onChange={(e) => {
-            setSelectedTool({
-              ...editorState.selectedTool,
+            onToolChange({
+              ...selectedTool,
               size: parseInt(e.target.value),
             })
           }}
           className="w-20"
         />
-        <span className="text-sm w-6">{editorState.selectedTool.size}</span>
+        <span className="text-sm w-6">{selectedTool.size}</span>
 
         <input
           type="color"
-          value={editorState.selectedTool.color}
+          value={selectedTool.color}
           onChange={(e) => {
-            setSelectedTool({
-              ...editorState.selectedTool,
+            onToolChange({
+              ...selectedTool,
               color: e.target.value,
             })
           }}
@@ -174,7 +178,7 @@ export function MapToolbar() {
         </Button>
         
         <span className="text-sm px-2 min-w-[60px] text-center">
-          {Math.round(editorState.zoom * 100)}%
+          {Math.round(zoom * 100)}%
         </span>
         
         <Button
@@ -219,7 +223,7 @@ export function MapToolbar() {
           <>
             <span>グリッド: {currentMap.data.gridSize}px</span>
             <span>サイズ: {currentMap.data.width}x{currentMap.data.height}</span>
-            <span>ツール: {toolItems.find(t => t.type === editorState.selectedTool.type)?.label}</span>
+            <span>ツール: {toolItems.find(t => t.type === selectedTool.type)?.label}</span>
           </>
         )}
       </div>

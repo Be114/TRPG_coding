@@ -12,20 +12,24 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Settings, Grid, Palette } from 'lucide-react'
 import { useMapStore } from '@/stores/mapStore'
-import { MapData, MapSettings as IMapSettings } from '@/types'
+import { MapData, MapSettings as IMapSettings, Map } from '@/types'
 
-export function MapSettings() {
-  const { currentMap, updateMap } = useMapStore()
+interface MapSettingsProps {
+  map: Map
+}
 
-  if (!currentMap) return null
+export function MapSettings({ map }: MapSettingsProps) {
+  const { updateMap } = useMapStore()
+
+  if (!map) return null
 
   const updateMapData = (updates: Partial<MapData>) => {
-    const newData = { ...currentMap.data, ...updates }
-    updateMap(currentMap.id, { data: newData })
+    const newData = { ...map.data, ...updates }
+    updateMap(map.id, { data: newData })
   }
 
   const updateSettings = (updates: Partial<IMapSettings>) => {
-    const newSettings = { ...currentMap.data.settings, ...updates }
+    const newSettings = { ...map.data.settings, ...updates }
     updateMapData({ settings: newSettings })
   }
 
@@ -65,10 +69,10 @@ export function MapSettings() {
               <Input
                 id="width"
                 type="number"
-                value={currentMap.data.width}
+                value={map.data.width}
                 onChange={(e) => {
                   const width = parseInt(e.target.value) || 1
-                  handleSizeChange(Math.max(1, Math.min(100, width)), currentMap.data.height)
+                  handleSizeChange(Math.max(1, Math.min(100, width)), map.data.height)
                 }}
                 min="1"
                 max="100"
@@ -82,10 +86,10 @@ export function MapSettings() {
               <Input
                 id="height"
                 type="number"
-                value={currentMap.data.height}
+                value={map.data.height}
                 onChange={(e) => {
                   const height = parseInt(e.target.value) || 1
-                  handleSizeChange(currentMap.data.width, Math.max(1, Math.min(100, height)))
+                  handleSizeChange(map.data.width, Math.max(1, Math.min(100, height)))
                 }}
                 min="1"
                 max="100"
@@ -107,7 +111,7 @@ export function MapSettings() {
             </Label>
             <Switch
               id="grid-visible"
-              checked={currentMap.data.settings.gridVisible}
+              checked={map.data.settings.gridVisible}
               onCheckedChange={(checked) => updateSettings({ gridVisible: checked })}
             />
           </div>
@@ -117,7 +121,7 @@ export function MapSettings() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="w-full justify-between h-8">
-                  {currentMap.data.gridSize}px
+                  {map.data.gridSize}px
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-full">
@@ -138,12 +142,12 @@ export function MapSettings() {
             <div className="flex items-center gap-2">
               <input
                 type="color"
-                value={currentMap.data.settings.gridColor}
+                value={map.data.settings.gridColor}
                 onChange={(e) => updateSettings({ gridColor: e.target.value })}
                 className="w-8 h-8 rounded border border-gray-300"
               />
               <Input
-                value={currentMap.data.settings.gridColor}
+                value={map.data.settings.gridColor}
                 onChange={(e) => updateSettings({ gridColor: e.target.value })}
                 className="h-8 font-mono text-xs"
               />
@@ -156,7 +160,7 @@ export function MapSettings() {
             </Label>
             <Switch
               id="snap-to-grid"
-              checked={currentMap.data.settings.snapToGrid}
+              checked={map.data.settings.snapToGrid}
               onCheckedChange={(checked) => updateSettings({ snapToGrid: checked })}
             />
           </div>
@@ -176,12 +180,12 @@ export function MapSettings() {
             <div className="flex items-center gap-2">
               <input
                 type="color"
-                value={currentMap.data.settings.backgroundColor}
+                value={map.data.settings.backgroundColor}
                 onChange={(e) => updateSettings({ backgroundColor: e.target.value })}
                 className="w-8 h-8 rounded border border-gray-300"
               />
               <Input
-                value={currentMap.data.settings.backgroundColor}
+                value={map.data.settings.backgroundColor}
                 onChange={(e) => updateSettings({ backgroundColor: e.target.value })}
                 className="h-8 font-mono text-xs"
               />
@@ -200,7 +204,7 @@ export function MapSettings() {
                 type="radio"
                 id="square-grid"
                 name="gridType"
-                checked={currentMap.data.settings.gridType === 'square'}
+                checked={map.data.settings.gridType === 'square'}
                 onChange={() => updateSettings({ gridType: 'square' })}
               />
               <Label htmlFor="square-grid" className="text-sm">
@@ -212,7 +216,7 @@ export function MapSettings() {
                 type="radio"
                 id="hex-grid"
                 name="gridType"
-                checked={currentMap.data.settings.gridType === 'hex'}
+                checked={map.data.settings.gridType === 'hex'}
                 onChange={() => updateSettings({ gridType: 'hex' })}
                 disabled
               />
@@ -226,9 +230,9 @@ export function MapSettings() {
 
       {/* Footer Info */}
       <div className="p-3 border-t border-gray-200 text-xs text-gray-500">
-        {currentMap.data.width} × {currentMap.data.height} グリッド
+        {map.data.width} × {map.data.height} グリッド
         <br />
-        {currentMap.data.width * currentMap.data.gridSize} × {currentMap.data.height * currentMap.data.gridSize} ピクセル
+        {map.data.width * map.data.gridSize} × {map.data.height * map.data.gridSize} ピクセル
       </div>
     </div>
   )
