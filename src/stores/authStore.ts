@@ -36,11 +36,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (error) throw error
 
     if (data.user) {
-      await supabase.from('profiles').insert({
+      const { error: profileError } = await supabase.from('profiles').insert({
         id: data.user.id,
         email: data.user.email!,
         full_name: fullName,
       })
+      
+      if (profileError) {
+        console.error('Profile creation failed:', profileError)
+        // Don't throw here as the user account was already created
+        // The profile can be created later or handled by the UI
+      }
     }
   },
 
