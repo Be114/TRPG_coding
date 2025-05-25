@@ -18,11 +18,41 @@ export interface Project {
 export interface Scenario {
   id: string
   title: string
-  content: string
+  content: any // TipTap JSON content
   projectId: string
   orderIndex: number
+  wordCount: number
+  lastEditedAt: string
+  version: number
   createdAt: string
   updatedAt: string
+}
+
+export interface ScenarioChapter {
+  id: string
+  title: string
+  content: any // TipTap JSON content
+  scenarioId: string
+  orderIndex: number
+  parentId: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface EditorState {
+  focusMode: boolean
+  zenMode: boolean
+  leftSidebarVisible: boolean
+  rightSidebarVisible: boolean
+  leftSidebarWidth: number
+  rightSidebarWidth: number
+}
+
+export interface AutoSaveState {
+  isSaving: boolean
+  lastSaved: Date | null
+  hasUnsavedChanges: boolean
+  error: string | null
 }
 
 export interface Map {

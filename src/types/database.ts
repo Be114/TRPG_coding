@@ -59,27 +59,68 @@ export interface Database {
           created_at: string
           updated_at: string
           title: string
-          content: string
+          content: any
           project_id: string
           order_index: number
+          word_count: number
+          last_edited_at: string
+          version: number
         }
         Insert: {
           id?: string
           created_at?: string
           updated_at?: string
           title: string
-          content?: string
+          content?: any
           project_id: string
           order_index?: number
+          word_count?: number
+          last_edited_at?: string
+          version?: number
         }
         Update: {
           id?: string
           created_at?: string
           updated_at?: string
           title?: string
-          content?: string
+          content?: any
           project_id?: string
           order_index?: number
+          word_count?: number
+          last_edited_at?: string
+          version?: number
+        }
+      }
+      scenario_chapters: {
+        Row: {
+          id: string
+          created_at: string
+          updated_at: string
+          title: string
+          content: any
+          scenario_id: string
+          order_index: number
+          parent_id: string | null
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          updated_at?: string
+          title: string
+          content?: any
+          scenario_id: string
+          order_index?: number
+          parent_id?: string | null
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          updated_at?: string
+          title?: string
+          content?: any
+          scenario_id?: string
+          order_index?: number
+          parent_id?: string | null
         }
       }
       maps: {
