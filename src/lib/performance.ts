@@ -63,9 +63,16 @@ export class PerformanceMonitor {
   }
 
   private trackMemoryUsage() {
-    if ('memory' in performance) {
-      const memoryInfo = (performance as any).memory
-      this.metrics.memoryUsage = memoryInfo.usedJSHeapSize / (1024 * 1024) // MB
+    try {
+      if ('memory' in performance && (performance as any).memory) {
+        const memoryInfo = (performance as any).memory
+        if (memoryInfo.usedJSHeapSize) {
+          this.metrics.memoryUsage = memoryInfo.usedJSHeapSize / (1024 * 1024) // MB
+        }
+      }
+    } catch (error) {
+      // Performance memory API not available or accessible
+      console.debug('Performance memory API not available:', error)
     }
   }
 
@@ -86,8 +93,16 @@ export class PerformanceMonitor {
 
     // Mark initial render completion
     requestAnimationFrame(() => {
-      performance.mark('render-end')
-      performance.measure('render-time', 'navigationStart', 'render-end')
+      try {
+        performance.mark('render-end')
+        // Use a fallback if navigationStart is not available
+        const startMark = performance.getEntriesByName('navigationStart').length > 0 
+          ? 'navigationStart' 
+          : 'app-start'
+        performance.measure('render-time', startMark, 'render-end')
+      } catch (error) {
+        console.debug('Performance measurement failed:', error)
+      }
     })
   }
 

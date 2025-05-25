@@ -47,6 +47,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
   }
 
   const handleOpenWorkspace = () => {
+    if (!project?.id) {
+      console.error('Cannot navigate to workspace: invalid project ID')
+      return
+    }
     navigate(`/project/${project.id}/workspace`)
   }
 
