@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import { Scenario, ScenarioChapter, AutoSaveState } from '@/types'
 import { supabase } from '@/lib/supabase'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 import { measureAsyncOperation, PerformanceMonitor } from '@/lib/performance'
 
 interface OptimizedScenarioState {
@@ -538,7 +538,18 @@ export const useOptimizedScenarioStore = create<OptimizedScenarioState>()(
       clearUnusedData: () => {
         const { currentScenarioId, scenarios, chapters, chaptersByScenario } = get()
         
-        if (!currentScenarioId) return
+        if (!currentScenarioId) {
+          // If no current scenario, clear all debounced operations
+          for (const [scenarioId, debouncedSave] of debouncedSaveOperations.entries()) {
+            try {
+              debouncedSave.cancel()
+            } catch (error) {
+              console.warn(`Failed to cancel debounced save for scenario ${scenarioId}:`, error)
+            }
+            debouncedSaveOperations.delete(scenarioId)
+          }
+          return
+        }
 
         // Keep only current scenario and its chapters
         const currentChapterIds = chaptersByScenario.get(currentScenarioId) || []
@@ -572,7 +583,11 @@ export const useOptimizedScenarioStore = create<OptimizedScenarioState>()(
         // Clear debounced operations for removed scenarios
         for (const [scenarioId, debouncedSave] of debouncedSaveOperations.entries()) {
           if (scenarioId !== currentScenarioId) {
-            debouncedSave.cancel()
+            try {
+              debouncedSave.cancel()
+            } catch (error) {
+              console.warn(`Failed to cancel debounced save for scenario ${scenarioId}:`, error)
+            }
             debouncedSaveOperations.delete(scenarioId)
           }
         }

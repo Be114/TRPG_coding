@@ -8,7 +8,7 @@ import { MapLayerPanel } from './map/MapLayerPanel'
 import { MapSettings } from './map/MapSettings'
 import { MapAssetPanel } from './map/MapAssetPanel'
 import { cn } from '@/lib/utils'
-import { debounce } from 'lodash'
+import debounce from 'lodash/debounce'
 
 interface OptimizedMapEditorProps {
   mapId: string
@@ -316,10 +316,14 @@ export const OptimizedMapEditor: React.FC<OptimizedMapEditorProps> = memo(({
             e.preventDefault()
             setZoom(1)
             setPan(0, 0)
-            if (stageRef.current) {
-              stageRef.current.scale({ x: 1, y: 1 })
-              stageRef.current.position({ x: 0, y: 0 })
-              stageRef.current.batchDraw()
+            if (stageRef.current && typeof stageRef.current.scale === 'function') {
+              try {
+                stageRef.current.scale({ x: 1, y: 1 })
+                stageRef.current.position({ x: 0, y: 0 })
+                stageRef.current.batchDraw()
+              } catch (error) {
+                console.warn('Failed to reset stage view:', error)
+              }
             }
             break
         }
